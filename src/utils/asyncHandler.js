@@ -2,7 +2,7 @@ const asyncHandler = (fnc) => async (req, res, next) => {
   try {
     await fnc(req, res, next);
   } catch (error) {
-    res.status(error).js;
+    next(error);
   }
 };
 
