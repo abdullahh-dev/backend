@@ -10,9 +10,11 @@ const generateAccessAndRefreshTokens = async (userId) => {
     const accessToken = user.generateAccessToken();
     const refreshToken = user.generateRefreshToken();
     user.refreshToken = refreshToken;
-    user.save({ validateBeforeSave });
-    return { refreshToken, accessToken };
-  } catch (error) {}
+    await user.save({ validateBeforeSave: true });
+    return { accessToken, refreshToken };
+  } catch (error) {
+    console.error(error);
+  }
 };
 
 const registerUser = asyncHandler(async (req, res) => {
@@ -68,7 +70,8 @@ const registerUser = asyncHandler(async (req, res) => {
 
 const loginUser = asyncHandler(async (req, res) => {
   const { username, email, password } = req.body;
-  if (!username || !email) {
+
+  if (!(username || email)) {
     throw new ApiError(400, "username or email is required");
   }
 
@@ -76,8 +79,9 @@ const loginUser = asyncHandler(async (req, res) => {
     $or: [{ username }, { email }],
   });
   if (!user) throw new ApiError(404, "user does not exist");
+
   const isPasswordCorrect = await user.isPasswordCorrect(password);
-  if (!isPasswordCorrect) throw new ApiError(401, "Invalid user credentials");
+  if (!isPasswordCorrect) throw new ApiError(401, "Invalid Password");
   const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(
     user._id
   );
@@ -94,12 +98,15 @@ const loginUser = asyncHandler(async (req, res) => {
     .cookie("accessToken", accessToken, options)
     .cookie("refreshToken", refreshToken, options)
     .json(
-      new ApiResponse(200, {
-        user: loggedInUser,
-        accessToken,
-        refreshToken,
-      }),
-      "user logged in successfully"
+      new ApiResponse(
+        200,
+        {
+          user: loggedInUser,
+          accessToken,
+          refreshToken,
+        },
+        "user logged in successfully"
+      )
     );
 });
 
