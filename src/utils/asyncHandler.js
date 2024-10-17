@@ -6,12 +6,4 @@ const asyncHandler = (fnc) => async (req, res, next) => {
   }
 };
 
-//  Another pattern used to wrap asynchronous code (like API routes) with a unified error handling approach
-
-// const secondAsyncHandler = (reqHandler) => {
-//   (req, res, next) => {
-//     Promise.resolve(reqHandler(req, res, next)).catch((err) => next(err));
-//   };
-// };
-
-export { asyncHandler };
+export default asyncHandler;
