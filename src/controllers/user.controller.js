@@ -22,7 +22,7 @@ const registerUser = asyncHandler(async (req, res) => {
   const { fullname, email, username, password } = req.body;
 
   if ([fullname, email, username, password].some((f) => f?.trim() == "")) {
-    throw new ApiError(400, "All fields are required");
+    throw new ApiError(400, `All fields are required`);
   }
 
   const existedUser = await User.findOne({
@@ -131,6 +131,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
   try {
     const incomingRefreshToken =
       req.cookie.refreshToken || req.body.refreshToken;
+
     if (!incomingRefreshToken) {
       throw new ApiError(401, "Unauthorized Request");
     }
